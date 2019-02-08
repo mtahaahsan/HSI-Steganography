@@ -38,32 +38,47 @@ struct PPM *getPPM(FILE *file){
 //    printf("%d This is Width", ppmfile.height);
     fscanf(file,"%d",&ppmfile.max);
     int arr_size;
-    arr_size = ppmfile.height * ppmfile.width;
+
+    arr_size = (ppmfile.height * ppmfile.width);
+    printf("Size %d\n", arr_size);
     struct RGB arr_rgb[arr_size];
 
-    for(count=0; count<arr_size;count++){
+    for(count=0; count<arr_size;count=count+3){
         fscanf(file,"%d",&arr_rgb[count].red);
-        fscanf(file,"%d",&arr_rgb[count].green);
-        fscanf(file,"%d",&arr_rgb[count].blue);
-//        printf("Counter %d\n", count);
+        fscanf(file,"%d",&arr_rgb[count+1].green);
+        fscanf(file,"%d",&arr_rgb[count+2].blue);
+        if (count == 143992) {
+            printf("Get red %d\n", arr_rgb[count].red);
+            printf("Get green %d\n", arr_rgb[count].green);
+            printf("Get Blue %d\n", arr_rgb[count].blue);}
+//
 //        printf("Size %d\n", arr_size);
     }
+//    printf("abcdef %d\n", arr_rgb[143992].blue);
 
     ppmfile.arr_rgb = arr_rgb;
+
+        printf("xRed %d\n", ppmfile.arr_rgb[143992].red);
+        printf("xGreen %d\n", ppmfile.arr_rgb[143992].green);
+        printf("xBlue %d\n", ppmfile.arr_rgb[143992].blue);
+
     return &ppmfile;
 }
 
-void showPPM(struct PPM *ppm1){
-    printf("showPPM Type%s\n",&ppm1->type);
-    printf("%d %d\n",ppm1->width, ppm1->height);
-    printf("%d\n",&ppm1->max);
-//    printf("%d Is the product", ppm->width*ppm->height);
-//    for (int i = 0; i < ppm->width*ppm->height; i++) {
-//        printf("%d\n",ppm->arr_rgb[i].red);
-//        printf("%d\n",ppm->arr_rgb[i].green);
-//        printf("%d\n",ppm->arr_rgb[i].blue);
-//    }
-
+void showPPM(struct PPM ppm1){
+    printf("Show PPM Type %s\n",ppm1.type);
+    printf("Show Width %d\nShow Height %d\n",ppm1.width, ppm1.height);
+    printf("Show Max %d\n",ppm1.max);
+    printf("Show Width x Height %d\n", ppm1.width*ppm1.height);
+//    printf("%d", ppm1->arr_rgb[0].blue);
+    for (int i = 0; i < ppm1.width*ppm1.height; i++) {
+       if (i == 143992) {
+            printf("i %d\n", i);
+            printf("Show Red %d\n", ppm1.arr_rgb[i].red);
+            printf("Show Green %d\n", ppm1.arr_rgb[i].green);
+            printf("Show Blue %d\n", ppm1.arr_rgb[i].blue);
+        }
+    }
 }
 
 
@@ -74,16 +89,18 @@ int main() {
     struct PPM *ppmfile = getPPM(myFile);
 //    printf(" getPPM Type main %s ", ppmfile->type);
 
-    showPPM(&ppmfile);
+    printf("mShow PPM Type %s\n",ppmfile->type);
+    printf("mShow Width %d\nShow Height %d\n",ppmfile->width, ppmfile->height);
+    printf("mShow Max %d\n",ppmfile->max);
+
+    printf("mRed %d\n", ppmfile->arr_rgb[143992].red);
+    printf("mGreen %d\n", ppmfile->arr_rgb[143992].green);
+    printf("mBlue %d\n", ppmfile->arr_rgb[143992].blue);
+
+
+ showPPM(*ppmfile);
 //    printf("%d",ppmfile->width);
-
-
-//    for(rows = 0; rows<width; rows++){
-//        for(cols = 0; cols<height; cols++){
-//            fscanf(myFile, "%d", &matrix[rows][cols]);
-//            printf("%d\n", matrix[rows][cols]);
-//        }
-//    }
+//    printf("%d", ppmfile->arr_rgb[143992].blue);
 
     fclose(myFile);
     return 0;
