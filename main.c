@@ -215,77 +215,87 @@ struct PPM *encode(struct PPM *im, char *message, unsigned int mSize, unsigned i
 }
 
 char * decode(struct PPM *im, unsigned int secret){
-    printf("Decode %d\n", im->pixelarray[0].red);
-    printf("%c\n",strtol("01010100", 0, 2));
     char *binary = (char*)malloc(sizeof(200));
     char *itr;
     int bin=0;
     int rgb = 0;
-    while(im->width*im->height){
+
+    int endCounter=0;
+    int bin2;
+    while(true){
         binary[bin] = ((im->pixelarray[rgb].red) & 0x01);
-        printf("%d\n", binary[bin]);
+//        printf("%d\n", binary[bin]);
         bin++;
-        if (bin == 8) {
-            break;
+        if(bin%8 == 0){
+            int sum = 0;
+            int base = 1;
+            for(bin2 = 7; bin2>0; bin2--){
+                int num = binary[bin2];
+                sum = sum+ (num * base);
+                base = base *2;
+            }
+            bin = 0;
+            if(sum==36){
+                endCounter++;
+                if(endCounter == 4){
+                    printf("%c",sum);
+                    break;
+                }
+            }
+
+            printf("%c",sum);
         }
+
 
 
         binary[bin] = ((im->pixelarray[rgb].green) & 0x01);
-        printf("%d\n", binary[bin]);
+//        printf("%d\n", binary[bin]);
         bin++;
-        if (bin == 8) {
-            break;
+        if(bin%8 == 0){
+            int sum = 0;
+            int base = 1;
+            for(bin2 = 7; bin2>0; bin2--){
+                int num = binary[bin2];
+                sum = sum+ (num * base);
+                base = base *2;
+            }
+            bin = 0;
+            if(sum==36){
+                endCounter++;
+                if(endCounter == 4){
+                    printf("%c",sum);
+                    break;
+                }
+            }
+
+            printf("%c",sum);
         }
 
         binary[bin] = ((im->pixelarray[rgb].blue) & 0x01);
-        printf("%d\n", binary[bin]);
+//        printf("%d\n", binary[bin]);
         bin++;
-        if (bin == 8) {
-            break;
+        if(bin%8 == 0){
+            int sum = 0;
+            int base = 1;
+            for(bin2 = 7; bin2>0; bin2--){
+                int num = binary[bin2];
+                sum = sum+ (num * base);
+                base = base *2;
+            }
+            bin = 0;
+            if(sum==36){
+                endCounter++;
+                if(endCounter == 4){
+                    printf("%c",sum);
+                    break;
+                }
+            }
+
+            printf("%c",sum);
         }
         rgb++;
     }
-    int base = 1;
-    int endCounter=0;
-    int bin2;
-    int sum;
-    for(bin2 = 7; bin2>0; bin2--){
-        int num = binary[bin2];
-        sum = sum+ (num * base);
-        base = base *2;
-    }
-    printf("%c", sum);
-    if(sum == 215){
-        endCounter++;
-    }
 
-//    for(bin=0; bin<8; bin++){
-//        printf("%d", binary[bin]);
-//    }
-
-    printf("\n%d\n", binary[0]);
-
-    printf("The value we get is %c\n", strtol(binary,0,2));
-
-}
-
-//char *decode(struct PPM *im, unsigned int secret){
-//
-//}
-
-int toBinary() {
-    int number = 254;
-    int letter = 85;
-
-    if ((number & 0x01) == 1 && (letter >> 6 & 0x01) == 0) {
-        number = number - 1;
-    }
-    if ((number & 0x01) == 0 && (letter >> 6 & 0x01) == 1) {
-        number = number + 1;
-    }
-
-    printf("%d\n", number);
-    printf("%d\n", (letter >> 6) & 0x01);
 
 }
 
@@ -294,8 +304,7 @@ int main() {
     myFile = fopen("homecat.ppm", "r");
     struct PPM *ppmfile = getPPM(myFile);
 //    showPPM(ppmfile);
-    struct PPM *new = encode(ppmfile, "Taha", 4, 12345);
-    int no = toBinary();
+    struct PPM *new = encode(ppmfile, "Now I'm actually hiding messages$$$$", 36, 12345);
     showPPM(new);
     char *message = decode(new, 12345);
     fclose(myFile);
