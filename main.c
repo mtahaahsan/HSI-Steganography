@@ -11,6 +11,7 @@ int **makeMatrix(int m, int n) {
     }
     return matrix;
 }
+
 struct RGB {
     int red;
     int green;
@@ -28,7 +29,7 @@ struct PPM {
 struct PPM l_ppmfile;
 
 
-struct PPM *getPPM(FILE *file){
+struct PPM *getPPM(FILE *file) {
     int count;
     int count2;
     int rows = 0;
@@ -48,6 +49,7 @@ struct PPM *getPPM(FILE *file){
 //    l_ppmfile.pixelarray = makeMatrix(l_ppmfile.width,l_ppmfile.height);
 //
     struct RGB *simp = (int *) malloc(l_ppmfile.height * l_ppmfile.width * 3 * sizeof(int));
+
 
 
 //This is for mallocing a 2D array
@@ -107,6 +109,7 @@ void showPPM(struct PPM *ppm1) {
     enterfile = fopen("enterfile.ppm", "w");
 
     fprintf(enterfile, "%s\n", ppm1->type);
+    printf("%s\n", ppm1->type);
 
     fprintf(enterfile, "%d %d\n", ppm1->width, ppm1->height);
 
@@ -135,19 +138,140 @@ void showPPM(struct PPM *ppm1) {
 struct PPM *encode(struct PPM *im, char *message, unsigned int mSize, unsigned int secret) {
     srand(5);
     int binaryCount;
-    int messageCount;
-    int rgbCount;
+    int messageCount = 0;
+    int rgbCount = 0;
     int random = rand();
+    printf("encode %s\n", im->type);
     printf("%d\n", random);
     for (messageCount = 0; messageCount < mSize; messageCount++) {
-        for (binaryCount = 0; binaryCount < 8; binaryCount++) {
+        for (binaryCount = 7; binaryCount >= 0; binaryCount--) {
             printf("%d", (message[messageCount] >> binaryCount) & 0x01);
         }
         printf("\n");
     }
-    
-    return &im;
+    messageCount = 0;
+    while (messageCount < mSize) {
+        binaryCount = 7;
+        for (rgbCount; rgbCount < mSize * 3; rgbCount++) {
+
+            if ((im->pixelarray[rgbCount].red & 0x01) == 1 && (message[messageCount] >> binaryCount & 0x01) == 0) {
+                im->pixelarray[rgbCount].red--;
+            }
+            if ((im->pixelarray[rgbCount].red & 0x01) == 0 && (message[messageCount] >> binaryCount & 0x01) == 1) {
+                im->pixelarray[rgbCount].red++;
+            }
+            binaryCount--;
+            if (binaryCount < 0) {
+                messageCount++;
+                binaryCount = 7;
+            }
+            if(messageCount == mSize){
+                break;
+            }
+
+            if ((im->pixelarray[rgbCount].green & 0x01) == 1 && (message[messageCount] >> binaryCount & 0x01) == 0) {
+                im->pixelarray[rgbCount].green--;
+            }
+            if ((im->pixelarray[rgbCount].green & 0x01) == 0 && (message[messageCount] >> binaryCount & 0x01) == 1) {
+                im->pixelarray[rgbCount].green++;
+            }
+            binaryCount--;
+            if (binaryCount < 0) {
+                messageCount++;
+                binaryCount = 7;
+            }
+            if(messageCount == mSize){
+                break;
+            }
+
+            if ((im->pixelarray[rgbCount].blue & 0x01) == 1 && (message[messageCount] >> binaryCount & 0x01) == 0) {
+                im->pixelarray[rgbCount].blue--;
+            }
+            if ((im->pixelarray[rgbCount].blue & 0x01) == 0 && (message[messageCount] >> binaryCount & 0x01) == 1) {
+                im->pixelarray[rgbCount].blue++;
+            }
+            binaryCount--;
+            if (binaryCount < 0) {
+                messageCount++;
+                binaryCount = 7;
+            }
+            if(messageCount == mSize){
+                break;
+            }
+
+        }
+        printf("\n");
+        rgbCount++;
+    }
+
+    int i;
+//    for (i = 0; i < 13; i++) {
+//        printf("RED VALUE %d\n", im->pixelarray[i].red);
+//        printf("GREEN VALUE %d\n", im->pixelarray[i].green);
+//        printf("BLUE VALUE %d\n", im->pixelarray[i].blue);
+//    }
+
+    return im;
 }
+
+char * decode(struct PPM *im, unsigned int secret){
+    printf("Decode %d\n", im->pixelarray[0].red);
+    printf("%c\n",strtol("01010100", 0, 2));
+    char *binary = (char*)malloc(sizeof(200));
+    char *itr;
+    int bin=0;
+    int rgb = 0;
+    while(im->width*im->height){
+        binary[bin] = ((im->pixelarray[rgb].red) & 0x01);
+        printf("%d\n", binary[bin]);
+        bin++;
+        if (bin == 8) {
+            break;
+        }
+
+
+        binary[bin] = ((im->pixelarray[rgb].green) & 0x01);
+        printf("%d\n", binary[bin]);
+        bin++;
+        if (bin == 8) {
+            break;
+        }
+
+        binary[bin] = ((im->pixelarray[rgb].blue) & 0x01);
+        printf("%d\n", binary[bin]);
+        bin++;
+        if (bin == 8) {
+            break;
+        }
+        rgb++;
+    }
+    int base = 1;
+    int endCounter=0;
+    int bin2;
+    int sum;
+    for(bin2 = 7; bin2>0; bin2--){
+        int num = binary[bin2];
+        sum = sum+ (num * base);
+        base = base *2;
+    }
+    printf("%c", sum);
+    if(sum == 215){
+        endCounter++;
+    }
+
+//    for(bin=0; bin<8; bin++){
+//        printf("%d", binary[bin]);
+//    }
+
+    printf("\n%d\n", binary[0]);
+
+    printf("The value we get is %c\n", strtol(binary,0,2));
+
+}
+
+//char *decode(struct PPM *im, unsigned int secret){
+//
+//}
 
 int toBinary() {
     int number = 254;
@@ -169,9 +293,11 @@ int main() {
     FILE *myFile;
     myFile = fopen("homecat.ppm", "r");
     struct PPM *ppmfile = getPPM(myFile);
-    showPPM(ppmfile);
-    struct PPM *new = encode(ppmfile, "This message", 12, 12345);
+//    showPPM(ppmfile);
+    struct PPM *new = encode(ppmfile, "Taha", 4, 12345);
     int no = toBinary();
+    showPPM(new);
+    char *message = decode(new, 12345);
     fclose(myFile);
-    return 0;
+
 }
