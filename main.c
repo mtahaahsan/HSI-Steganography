@@ -11,7 +11,6 @@ struct RGB {
 
 struct PPM {
     char type[2];
-    char *comments;
     int width;
     int height;
     int max;
@@ -27,13 +26,8 @@ struct PPM *getPPM(FILE *file) {
     int rows = 0;
     int cols = 0;
 
-    l_ppmfile.comments = (char*)malloc(sizeof(char));
-
 
     fscanf(file, "%s", &l_ppmfile.type);
-
-//    fscanf(file, "%s", &l_ppmfile.comments);
-//    printf("%s\n", l_ppmfile.comments);
 
     fscanf(file, "%d", &l_ppmfile.width);
     printf("getPPM width %d\n", l_ppmfile.width);
@@ -87,7 +81,7 @@ struct PPM *encode(struct PPM *im, char *message, unsigned int mSize, unsigned i
     printf("%li\n", randoms%secret);
     int binaryCount;
     int messageCount = 0;
-    int rgbCount = 0;
+    int rgbCount = randoms%secret;
     for (messageCount = 0; messageCount < mSize; messageCount++) {
         for (binaryCount = 7; binaryCount >= 0; binaryCount--) {
             printf("%d", (message[messageCount] >> binaryCount) & 0x01);
@@ -95,9 +89,10 @@ struct PPM *encode(struct PPM *im, char *message, unsigned int mSize, unsigned i
         printf("\n");
     }
     messageCount = 0;
+    printf("We reach here");
     while (messageCount < mSize) {
         binaryCount = 7;
-        for (rgbCount; rgbCount < mSize * 3; rgbCount++) {
+        for (rgbCount; rgbCount < 100000000000; rgbCount++) {
 
             if ((im->pixelarray[rgbCount].red & 0x01) == 1 && (message[messageCount] >> binaryCount & 0x01) == 0) {
                 im->pixelarray[rgbCount].red--;
@@ -148,6 +143,7 @@ struct PPM *encode(struct PPM *im, char *message, unsigned int mSize, unsigned i
         printf("\n");
         rgbCount++;
     }
+    printf("But do we reach ere");
 
     int i;
 //    for (i = 0; i < 13; i++) {
@@ -161,12 +157,16 @@ struct PPM *encode(struct PPM *im, char *message, unsigned int mSize, unsigned i
 
 char * decode(struct PPM *im, unsigned int secret){
     char *binary = (char*)malloc(sizeof(200));
+    srand(secret);
+    long randoms = rand();
+    printf("%li\n", randoms%secret);
     char *itr;
     int bin=0;
-    int rgb = 0;
+    int rgb = randoms%secret;
 
     int endCounter=0;
     int bin2;
+    printf("It's breaking here");
     while(true){
         binary[bin] = ((im->pixelarray[rgb].red) & 0x01);
 //        printf("%d\n", binary[bin]);
