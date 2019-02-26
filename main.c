@@ -3,15 +3,6 @@
 #include <string.h>
 #include <wayland-server-core.h>
 
-int **makeMatrix(int m, int n) {
-    int **matrix = (int **) calloc(m, sizeof(int *));
-    int i;
-    for (i = 0; i < m; i++) {
-        matrix[i] = (int *) calloc(n, sizeof(int));
-    }
-    return matrix;
-}
-
 struct RGB {
     int red;
     int green;
@@ -20,6 +11,7 @@ struct RGB {
 
 struct PPM {
     char type[2];
+    char *comments;
     int width;
     int height;
     int max;
@@ -35,7 +27,13 @@ struct PPM *getPPM(FILE *file) {
     int rows = 0;
     int cols = 0;
 
+    l_ppmfile.comments = (char*)malloc(sizeof(char));
+
+
     fscanf(file, "%s", &l_ppmfile.type);
+
+//    fscanf(file, "%s", &l_ppmfile.comments);
+//    printf("%s\n", l_ppmfile.comments);
 
     fscanf(file, "%d", &l_ppmfile.width);
     printf("getPPM width %d\n", l_ppmfile.width);
@@ -46,54 +44,13 @@ struct PPM *getPPM(FILE *file) {
     fscanf(file, "%d", &l_ppmfile.max);
     printf("getPPM height %d\n", l_ppmfile.max);
 
-//    l_ppmfile.pixelarray = makeMatrix(l_ppmfile.width,l_ppmfile.height);
-//
     struct RGB *simp = (int *) malloc(l_ppmfile.height * l_ppmfile.width * 3 * sizeof(int));
-
-
-
-//This is for mallocing a 2D array
-//    struct RGB **simp = (int**)malloc(l_ppmfile.height*l_ppmfile.width*3* sizeof(int*));
-//    int i;
-//    for(i = 0; i<l_ppmfile.height*l_ppmfile.width;i++){
-//        simp[i] = (int*)malloc(l_ppmfile.height*l_ppmfile.width*3*sizeof(int));
-//    }
-
-
-//Scanning into the matrix
-//    for(cols = 0; cols<l_ppmfile.width; cols++){
-//        for(rows=0; rows<l_ppmfile.height; rows++){
-//            fscanf(file,"%d",&simp[rows][cols].red);
-////            printf("%d\n",simp[rows][cols].red);
-//            fscanf(file,"%d",&simp[rows][cols].green);
-//            fscanf(file,"%d",&simp[rows][cols].blue);
-//
-//            }
-//        }
-
 
     for (count = 0; count < l_ppmfile.width * l_ppmfile.height; count++) {
         fscanf(file, "%d", &simp[count].red);
         fscanf(file, "%d", &simp[count].green);
         fscanf(file, "%d", &simp[count].blue);
     }
-
-//    FILE* enterfile1;
-//    enterfile1 = fopen("enterfile.ppm","w");
-//
-//    fprintf(enterfile1,"%s\n",l_ppmfile.type);
-//
-//    fprintf(enterfile1,"%d %d\n", l_ppmfile.width, l_ppmfile.height);
-//
-//    fprintf(enterfile1, "%d\n", l_ppmfile.max);
-//
-//
-//    for(count = 0; count<512*349; count++){
-//        fprintf(enterfile1, "%d\n", simp[count].red);
-//        fprintf(enterfile1, "%d\n", simp[count].green);
-//        fprintf(enterfile1, "%d\n", simp[count].blue);
-//    }
-//    fclose(enterfile1);
 
     l_ppmfile.pixelarray = simp;
 
@@ -109,7 +66,6 @@ void showPPM(struct PPM *ppm1) {
     enterfile = fopen("enterfile.ppm", "w");
 
     fprintf(enterfile, "%s\n", ppm1->type);
-    printf("%s\n", ppm1->type);
 
     fprintf(enterfile, "%d %d\n", ppm1->width, ppm1->height);
 
@@ -122,27 +78,16 @@ void showPPM(struct PPM *ppm1) {
         fprintf(enterfile, "%d\n", ppm1->pixelarray[count].blue);
     }
 
-//    for(cols = 0; cols<ppm1->height; cols++){
-//        for(rows=0; rows<ppm1->width; rows++){
-//            fprintf(enterfile,"%d\n",ppm1->pixelarray[cols][rows].red);
-//            printf("%d\n",ppm1->pixelarray[rows][cols].red );
-//            fprintf(enterfile,"%d\n",ppm1->pixelarray[cols][rows].green);
-//            fprintf(enterfile,"%d\n",ppm1->pixelarray[cols][rows].blue);
-//
-//        }
-//    }
-
     fclose(enterfile);
 }
 
 struct PPM *encode(struct PPM *im, char *message, unsigned int mSize, unsigned int secret) {
-    srand(5);
+    srand(secret);
+    long randoms = rand();
+    printf("%li\n", randoms%secret);
     int binaryCount;
     int messageCount = 0;
     int rgbCount = 0;
-    int random = rand();
-    printf("encode %s\n", im->type);
-    printf("%d\n", random);
     for (messageCount = 0; messageCount < mSize; messageCount++) {
         for (binaryCount = 7; binaryCount >= 0; binaryCount--) {
             printf("%d", (message[messageCount] >> binaryCount) & 0x01);
