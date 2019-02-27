@@ -87,39 +87,27 @@ struct PPM *getPPM(FILE *im) {
 void showPPM(struct PPM *ppm1) {
     int count;
 
-    //Opens file
-    FILE *enterFile;
-    enterFile = fopen("enterfile.ppm", "w");
-
     //Enters the type into the file
-    fprintf(enterFile, "%s\n", ppm1->type);
     printf("%s\n", ppm1->type);
 
     //Inserts the comments into the file
-    fprintf(enterFile, "%s", ppm1->comments);
     printf("%s", ppm1->comments);
     //Enters the width and height into the file
-    fprintf(enterFile, "%d %d\n", ppm1->width, ppm1->height);
     printf("%d %d\n", ppm1->width, ppm1->height);
 
     //Enters the max value into the file
-    fprintf(enterFile, "%d\n", ppm1->max);
     printf("%d\n", ppm1->max);
 
 
     //Enters all the RGB values into the file
     for (count = 0; count < ppm1->width * ppm1->height; count++) {
-        fprintf(enterFile, "%d\n", ppm1->pixelArray[count].red);
         printf("%d\n", ppm1->pixelArray[count].red);
 
-        fprintf(enterFile, "%d\n", ppm1->pixelArray[count].green);
         printf("%d\n", ppm1->pixelArray[count].green);
 
-        fprintf(enterFile, "%d\n", ppm1->pixelArray[count].blue);
         printf("%d\n", ppm1->pixelArray[count].blue);
     }
 
-    fclose(enterFile);
 }
 
 
